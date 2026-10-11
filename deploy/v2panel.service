@@ -1,0 +1,16 @@
+[Unit]
+Description=v2panel 面板 (233boy 多节点订阅管理)
+Documentation=https://github.com/233boy/v2ray
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/v2panel
+ExecStart=/opt/v2panel/v2panel -bind 0.0.0.0 -port 9000 -db /opt/v2panel/data/v2panel.db
+Restart=always
+RestartSec=5
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target

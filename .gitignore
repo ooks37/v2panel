@@ -1,0 +1,21 @@
+# 构建产物 —— 前端产物 (web/static) 是**要提交**的, 因为它被 go:embed 进二进制,
+# 不提交的话 clone 下来直接 go build 会因为 embed 找不到文件而失败。
+web/node_modules/
+node_modules/
+dist/
+*.exe
+
+# 运行时数据 —— 这是**全部凭证** (节点 Token / 用户 UUID / 订阅链接 / 流量历史),
+# 绝对不能进仓库。见 README「备份」一节。
+data/
+*.db
+*.db-wal
+*.db-shm
+
+# 面板日志与本地构建环境
+panel.log
+*.log
+
+# 233boy 的 conf 备份 (sync 时会生成, 含节点 UUID)
+*.v2panel-bak
+*.v2panel-tmp

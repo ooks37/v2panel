@@ -1,0 +1,225 @@
+/* v2panel 管理端主题 —— 把 Element Plus 调成「浅色简洁风」。
+ *
+ * Element Plus 默认是「企业后台」观感: 方正、灰底、蓝 #409EFF、边框重。
+ * 这套变量把它拉回到与用户订阅页一致的视觉语言:
+ *   底色 #f5f5f7 / 文字 #1d1d1f / 次级 #86868b / 主色 #0071e3
+ *   更大的圆角、更淡的边框、更松的留白。
+ *
+ * 只覆写变量, 不写 !important 硬覆盖 —— 后者会在组件升级时碎掉。
+ */
+
+:root {
+  /* ── 品牌色 ── */
+  --vp-primary: #0071e3;
+  --vp-primary-d: #0058b8;
+  --vp-ok: #1a9c50;
+  --vp-warn: #c77700;
+  --vp-danger: #d70015;
+  --vp-text: #1d1d1f;
+  --vp-sub: #86868b;
+  --vp-line: #e5e5ea;
+  --vp-bg: #f5f5f7;
+  --vp-panel: #ffffff;
+
+  /* ── Element Plus 变量覆写 ── */
+  --el-color-primary: #0071e3;
+  --el-color-primary-light-3: #3d93ea;
+  --el-color-primary-light-5: #66a9ef;
+  --el-color-primary-light-7: #99c6f4;
+  --el-color-primary-light-8: #b3d4f7;
+  --el-color-primary-light-9: #e6f1fc;
+  --el-color-primary-dark-2: #0058b8;
+
+  --el-color-success: #1a9c50;
+  --el-color-warning: #c77700;
+  --el-color-danger: #d70015;
+  --el-color-error: #d70015;
+
+  --el-text-color-primary: #1d1d1f;
+  --el-text-color-regular: #3a3a3c;
+  --el-text-color-secondary: #86868b;
+  --el-text-color-placeholder: #a1a1a6;
+
+  --el-border-color: #e5e5ea;
+  --el-border-color-light: #ececf0;
+  --el-border-color-lighter: #f0f0f2;
+  --el-fill-color-blank: #ffffff;
+  --el-fill-color-light: #fafafa;
+
+  --el-border-radius-base: 8px;
+  --el-border-radius-small: 6px;
+
+  --el-font-size-base: 14px;
+  --el-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", Roboto, sans-serif;
+
+  --el-box-shadow-light: 0 1px 3px rgba(0, 0, 0, .06), 0 6px 20px rgba(0, 0, 0, .05);
+}
+
+* { box-sizing: border-box; }
+
+html, body, #app {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--vp-bg);
+  color: var(--vp-text);
+  font-family: var(--el-font-family);
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--vp-primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── 布局骨架 ────────────────────────────────────────────── */
+.vp-shell { min-height: 100%; display: flex; flex-direction: column; }
+
+.vp-topbar {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; gap: 22px;
+  padding: 0 24px; height: 54px;
+  background: rgba(255, 255, 255, .82);
+  backdrop-filter: saturate(180%) blur(18px);
+  -webkit-backdrop-filter: saturate(180%) blur(18px);
+  border-bottom: 1px solid var(--vp-line);
+}
+.vp-brand { font-size: 15px; font-weight: 600; letter-spacing: -.2px; white-space: nowrap; }
+.vp-brand span { color: var(--vp-sub); font-weight: 400; font-size: 12px; margin-left: 7px; }
+
+.vp-nav { display: flex; gap: 4px; flex: 1; overflow-x: auto; }
+.vp-nav a {
+  padding: 6px 13px; border-radius: 980px; color: var(--vp-text);
+  font-size: 13.5px; white-space: nowrap; text-decoration: none;
+  transition: background .12s;
+}
+.vp-nav a:hover { background: rgba(0, 0, 0, .05); text-decoration: none; }
+.vp-nav a.router-link-active { background: var(--vp-text); color: #fff; }
+
+.vp-right { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--vp-sub); }
+
+.vp-wrap { max-width: 1180px; width: 100%; margin: 0 auto; padding: 26px 24px 72px; flex: 1; }
+
+.vp-head { display: flex; align-items: flex-end; gap: 14px; margin-bottom: 20px; flex-wrap: wrap; }
+.vp-head h1 { font-size: 26px; font-weight: 600; letter-spacing: -.5px; margin: 0; }
+.vp-head .desc { color: var(--vp-sub); font-size: 13px; padding-bottom: 4px; }
+.vp-head .spacer { flex: 1; }
+
+/* ── 卡片: 与订阅页同款 ──────────────────────────────────── */
+.vp-card {
+  background: var(--vp-panel); border: 1px solid var(--vp-line);
+  border-radius: 12px; box-shadow: var(--el-box-shadow-light);
+  padding: 20px; margin-bottom: 18px;
+}
+.vp-card > h2 {
+  font-size: 15px; font-weight: 600; margin: 0 0 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.vp-card > h2 .spacer { flex: 1; }
+.vp-card > h2 .sub { font-weight: 400; font-size: 12.5px; color: var(--vp-sub); }
+
+.vp-stats { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); margin-bottom: 18px; }
+.vp-stat {
+  background: var(--vp-panel); border: 1px solid var(--vp-line);
+  border-radius: 12px; padding: 16px 18px; box-shadow: var(--el-box-shadow-light);
+}
+.vp-stat .k { font-size: 12px; color: var(--vp-sub); margin-bottom: 6px; }
+.vp-stat .v { font-size: 24px; font-weight: 600; letter-spacing: -.6px; font-variant-numeric: tabular-nums; }
+.vp-stat .v small { font-size: 13px; font-weight: 400; color: var(--vp-sub); margin-left: 4px; letter-spacing: 0; }
+.vp-stat .m { font-size: 12px; color: var(--vp-sub); margin-top: 5px; }
+
+/* ── 表格: 去掉 Element 的灰底表头, 贴近订阅页的轻量观感 ── */
+.vp-table.el-table { --el-table-border-color: var(--vp-line); font-size: 13.5px; }
+.vp-table.el-table th.el-table__cell {
+  background: var(--vp-panel);
+  color: var(--vp-sub); font-weight: 500; font-size: 12px;
+  text-transform: uppercase; letter-spacing: .4px;
+}
+.vp-table.el-table td.el-table__cell { padding: 10px 0; }
+.vp-table.el-table .cell { line-height: 1.6; }
+.vp-table.el-table::before { display: none; }   /* 底部那条多余的横线 */
+
+.vp-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
+.vp-sub { color: var(--vp-sub); font-size: 12px; }
+.vp-num { font-variant-numeric: tabular-nums; }
+
+/* ── 提示条 ─────────────────────────────────────────────── */
+.vp-note {
+  font-size: 12.5px; line-height: 1.65; color: var(--vp-sub);
+  background: #fafafa; border: 1px solid var(--vp-line);
+  border-left: 3px solid var(--vp-primary); border-radius: 8px;
+  padding: 10px 13px; margin-bottom: 14px;
+}
+.vp-note.warn { border-left-color: var(--vp-warn); }
+.vp-note.bad { border-left-color: var(--vp-danger); }
+.vp-note.ok { border-left-color: var(--vp-ok); }
+.vp-note code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px; background: rgba(0, 0, 0, .05); padding: 1px 5px; border-radius: 4px;
+}
+.vp-note b { color: var(--vp-text); }
+
+/* ── 日志块 ─────────────────────────────────────────────── */
+.vp-log {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11.5px; line-height: 1.55;
+  background: #1d1d1f; color: #d8d8dc; border-radius: 8px;
+  padding: 13px 15px; max-height: 420px; overflow: auto; margin: 0;
+  white-space: pre-wrap; word-break: break-all;
+}
+
+/* ── 用量条 ─────────────────────────────────────────────── */
+.vp-bar { height: 5px; border-radius: 3px; background: #ececf0; overflow: hidden; margin-top: 7px; max-width: 190px; }
+.vp-bar > i { display: block; height: 100%; background: var(--vp-primary); border-radius: 3px; transition: width .3s; }
+.vp-bar > i.warn { background: #e0a000; }
+.vp-bar > i.full { background: var(--vp-danger); }
+
+/* ── 订阅地址框 ─────────────────────────────────────────── */
+.vp-uri {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11.5px; line-height: 1.6;
+  background: #f5f5f7; border: 1px solid var(--vp-line); border-radius: 6px;
+  padding: 8px 10px; word-break: break-all; max-height: 92px; overflow-y: auto;
+  color: #444;
+}
+
+/* ── 步骤列表 ───────────────────────────────────────────── */
+.vp-steps { display: flex; flex-direction: column; gap: 8px; font-size: 13.5px; }
+.vp-step { display: flex; gap: 10px; align-items: flex-start; }
+.vp-step .n {
+  flex: none; width: 20px; height: 20px; border-radius: 50%;
+  background: #e6f1fc; color: var(--vp-primary);
+  font-size: 12px; font-weight: 600; text-align: center; line-height: 20px; margin-top: 1px;
+}
+
+/* ── 登录页 ─────────────────────────────────────────────── */
+.vp-login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+.vp-login-card {
+  width: 100%; max-width: 380px; background: var(--vp-panel);
+  border: 1px solid var(--vp-line); border-radius: 16px;
+  box-shadow: 0 12px 44px rgba(0, 0, 0, .10); padding: 34px 30px;
+}
+.vp-login-card h1 { font-size: 21px; font-weight: 600; margin: 0 0 6px; letter-spacing: -.4px; }
+.vp-login-card .sub { color: var(--vp-sub); font-size: 13px; margin-bottom: 24px; }
+
+/* ── Element 细节微调 ───────────────────────────────────── */
+.el-card { border-radius: 12px; border-color: var(--vp-line); }
+.el-dialog { border-radius: 14px; }
+.el-dialog__header { margin-right: 0; padding-bottom: 12px; }
+.el-dialog__title { font-size: 17px; font-weight: 600; letter-spacing: -.3px; }
+.el-message-box { border-radius: 14px; }
+.el-button { border-radius: 8px; }
+.el-tag { border-radius: 980px; }
+.el-descriptions__label { color: var(--vp-sub) !important; }
+
+/* 空状态别那么空 */
+.el-empty { padding: 30px 0; }
+.el-empty__description p { color: var(--vp-sub); font-size: 13.5px; }
+
+@media (max-width: 640px) {
+  .vp-wrap { padding: 18px 14px 60px; }
+  .vp-topbar { padding: 0 14px; gap: 12px; }
+  .vp-brand span { display: none; }
+  .vp-head h1 { font-size: 22px; }
+}
