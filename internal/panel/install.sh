@@ -116,8 +116,17 @@ if [[ -x /usr/local/bin/v2ray && -d /etc/v2ray/sh ]]; then
 else
   info "正在安装 233boy v2ray ..."
   # 官方脚本内部直连 GitHub raw, 在国内/受限网络上会挂。
-  # 官方脚本本身支持 -m 指定镜像前缀, 依次尝试直到成功。
-  # 注意: 镜像只影响下载源, 脚本逻辑仍是上游 v4.27 原版。
+  #
+  # ⚠️ 镜像只用来**下载脚本本身**, 绝不能把它当参数传给 233boy。
+  # 上游 install.sh 的用法是:
+  #     install.sh [-f xxx | -l | -p xxx | -v xxx | -h]
+  # **没有 -m**。早前这里写成 `bash install.sh -m "$mirror"`, 结果是每个源都
+  # 立刻报 "(-m ...) 为未知参数" 然后 exit 1 —— 包括第一个空镜像
+  # (`-m ""` 同样非法), 于是**这台机器上永远装不上 233boy**, 面板上表现为
+  # 节点一直不出现。实测: 去掉 -m 参数后同一条命令直接成功。
+  #
+  # 正确做法: 用镜像前缀下载 install.sh, 然后**不带参数**执行它。
+  # 脚本内部要下载的 v2ray core 走它自己的源, 与这个前缀无关。
   installed=0
   for mirror in "" "https://ghproxy.net/" "https://gh-proxy.com/" "https://ghfast.top/"; do
     if [[ -n "$mirror" ]]; then
@@ -126,8 +135,9 @@ else
     if curl -fsSL --connect-timeout 10 --max-time 180 \
         "${mirror}https://github.com/233boy/v2ray/raw/master/install.sh" -o /tmp/233boy-install.sh 2>/dev/null \
        && [[ -s /tmp/233boy-install.sh ]]; then
-      # 上游脚本没有 set -e, 必须自己判退出码 + 复查产物
-      if bash /tmp/233boy-install.sh -m "$mirror" >/tmp/233boy-install.log 2>&1; then
+      # 上游脚本没有 set -e, 必须自己判退出码 + 复查产物。
+      # 不传任何参数 —— 传 -m 会直接报未知参数退出。
+      if bash /tmp/233boy-install.sh >/tmp/233boy-install.log 2>&1; then
         if [[ -x /usr/local/bin/v2ray && -d /etc/v2ray/sh ]]; then
           installed=1
           break

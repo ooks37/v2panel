@@ -534,6 +534,20 @@ func parseStdURI(uri, scheme string) (*ShareURI, error) {
 }
 
 // vmess 链接是 base64 的标准 JSON (v2rayN 格式)
+// vmess 链接是 base64 的标准 JSON (v2rayN 格式)。
+//
+// ⚠️ 字段类型一律用 any / 宽松解析, **不要写成 string**。
+// vmess JSON 的字段类型在各家实现里并不统一:
+//
+//	"v": 2      (数字)   ← 233boy 自己产出的就是这个
+//	"v": "2"    (字符串) ← 有些客户端
+//	"port": 53547 / "53547"
+//	"aid": 0 / "0"
+//
+// 早前把 V 声明成 string, 结果 233boy 自动创建的第一个节点 (VMess-TCP)
+// 直接解析失败 —— "cannot unmarshal number into Go struct field .v of type string",
+// 整个 inbound 的 URI 为空, 该节点**在订阅里彻底消失**。
+// 类型宽容比"声明准确"重要: 这里的目标是尽力取出能取到的值。
 func parseVmessURI(uri string) (*ShareURI, error) {
 	body := strings.TrimPrefix(uri, "vmess://")
 	if i := strings.IndexAny(body, "#?"); i >= 0 {
@@ -543,35 +557,41 @@ func parseVmessURI(uri string) (*ShareURI, error) {
 	if err != nil {
 		return nil, fmt.Errorf("vmess base64 解码失败: %w", err)
 	}
-	var v struct {
-		V    string `json:"v"`
-		PS   string `json:"ps"`
-		Add  string `json:"add"`
-		Port any    `json:"port"`
-		ID   string `json:"id"`
-		Aid  any    `json:"aid"`
-		Net  string `json:"net"`
-		Type string `json:"type"`
-		Host string `json:"host"`
-		Path string `json:"path"`
-		TLS  string `json:"tls"`
-		SNI  string `json:"sni"`
-	}
-	if err := json.Unmarshal(raw, &v); err != nil {
+	// 解成 map 再逐字段取: 未知字段不会导致整体失败, 类型不符也能兜住。
+	var m map[string]any
+	if err := json.Unmarshal(raw, &m); err != nil {
 		return nil, fmt.Errorf("vmess JSON 解析失败: %w", err)
+	}
+	str := func(k string) string {
+		switch t := m[k].(type) {
+		case string:
+			return t
+		case json.Number:
+			return t.String()
+		case float64:
+			// JSON 数字默认解成 float64; 整数值不要带小数点
+			if t == float64(int64(t)) {
+				return strconv.FormatInt(int64(t), 10)
+			}
+			return strconv.FormatFloat(t, 'f', -1, 64)
+		case nil:
+			return ""
+		default:
+			return fmt.Sprint(t)
+		}
 	}
 	out := &ShareURI{
 		Scheme:   "vmess",
 		URI:      uri,
-		UUID:     v.ID,
-		Address:  v.Add,
-		Port:     anyToInt(v.Port),
-		Tag:      v.PS,
-		Network:  v.Net,
-		Security: v.TLS,
-		Host:     v.Host,
-		Path:     v.Path,
-		SNI:      v.SNI,
+		UUID:     str("id"),
+		Address:  str("add"),
+		Port:     anyToInt(m["port"]),
+		Tag:      str("ps"),
+		Network:  str("net"),
+		Security: str("tls"),
+		Host:     str("host"),
+		Path:     str("path"),
+		SNI:      str("sni"),
 	}
 	if out.Security == "" {
 		out.Security = "none"

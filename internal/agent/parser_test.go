@@ -294,6 +294,49 @@ func TestParseShareURI_SS_SIP002(t *testing.T) {
 	}
 }
 
+// 233boy 自动创建的第一个节点就是 VMess, 它的 JSON 里 "v" 是**数字**。
+// 早前解析器把 V 声明成 string, 于是这个节点解析失败、URI 为空、
+// 在订阅里彻底消失。这里把那个真实形态固定下来。
+func TestParseShareURI_VMessNumericV(t *testing.T) {
+	// 逐字取自 233boy 在干净机器上自动创建的 VMess-TCP 节点
+	uri := "vmess://" + b64Std(`{"v":2,"ps":"233boy-tcp-186.241.65.152","add":"186.241.65.152","port":"53547","id":"3627b19d-be92-44f7-83ba-cae3b4a79c04","aid":"0","net":"tcp","type":"none","path":""}`)
+
+	su, err := ParseShareURI(uri)
+	if err != nil {
+		t.Fatalf("vmess 数字 v 应当能解析, 却报错: %v", err)
+	}
+	if su.Scheme != "vmess" {
+		t.Errorf("scheme 应为 vmess, 得到 %q", su.Scheme)
+	}
+	if su.Address != "186.241.65.152" {
+		t.Errorf("address 解析错误: %q", su.Address)
+	}
+	if su.Port != 53547 {
+		t.Errorf("port 解析错误: %d", su.Port)
+	}
+	if su.UUID != "3627b19d-be92-44f7-83ba-cae3b4a79c04" {
+		t.Errorf("uuid 解析错误: %q", su.UUID)
+	}
+	if su.Network != "tcp" {
+		t.Errorf("network 解析错误: %q", su.Network)
+	}
+}
+
+// 数字形态的 port / aid 也要能读出来 (不同客户端产出不一致)。
+func TestParseShareURI_VMessNumericPort(t *testing.T) {
+	uri := "vmess://" + b64Std(`{"v":2,"ps":"t","add":"a.example.com","port":443,"id":"11111111-2222-4333-8444-555555555555","aid":0,"net":"ws","path":"/x","tls":"tls"}`)
+	su, err := ParseShareURI(uri)
+	if err != nil {
+		t.Fatalf("数字 port 应当能解析: %v", err)
+	}
+	if su.Port != 443 {
+		t.Errorf("数字 port 解析错误: %d", su.Port)
+	}
+	if su.Address != "a.example.com" {
+		t.Errorf("address 解析错误: %q", su.Address)
+	}
+}
+
 func TestParseShareURI_VMess(t *testing.T) {
 	// {"v":"2","ps":"vmess-tcp","add":"node1.example.com","port":"23497","id":"<uuid>",
 	//  "aid":"0","net":"tcp","type":"none","host":"","path":"","tls":""}
