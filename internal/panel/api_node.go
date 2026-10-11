@@ -468,6 +468,19 @@ func HandleCreateNodeInbound(c *gin.Context) {
 	// 与公网 path) 立刻同步进面板 —— 这些值只能从机器上读回来, 不能靠推断。
 	if !req.DryRun {
 		GlobalHub.RequestInventory(n.ID)
+
+		// 还要把**用户名单**也下发一次。
+		//
+		// 为什么必须在这里做: 新建的 conf 是 233boy 写的, 里面只有 clients[0]
+		// (它自己那个 UUID), **没有订阅用户**。而用户同步此前只在"名单变化"时
+		// 触发 —— 新建一个 inbound 并不改变名单, 于是这个新 conf 上永远铺不上用户,
+		// 客户端拿订阅里的链接去连只会被拒 (UUID 不在该 conf 的 clients[] 里)。
+		//
+		// 症状很隐蔽: 面板上节点在线、订阅里线路也在、链接看着完全正常,
+		// 就是连不上。实测踩到过一次 (给新机器建第一个 VLESS-WS-TLS 节点时)。
+		//
+		// 幂等: 名单一致时 agent 直接返回, 不写盘不重启内核。
+		PushUserSyncAll()
 	}
 
 	msg := "节点配置已创建"
